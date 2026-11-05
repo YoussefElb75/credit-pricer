@@ -103,8 +103,8 @@ def _exact_periods(
     lo_win = np.maximum(t_acc0, t_start)
     active = t_end > lo_win
     n = len(periods)
-    prot = np.zeros(n)
-    aod = np.zeros(n)
+    prot: NDArray[np.float64] = np.zeros(n)
+    aod: NDArray[np.float64] = np.zeros(n)
     if np.any(active):
         nodes = np.concatenate((discount.node_times, survival.node_times))
         first, last = lo_win[active].min(), t_end[active].max()
@@ -123,8 +123,10 @@ def _exact_periods(
         base = lam * p0 * q0
         e1 = _e1(k, length)
         rate = acc[idx] / (t_end[idx] - t_acc0[idx])
-        prot = np.bincount(idx, base * e1, minlength=n)
-        aod = np.bincount(idx, rate * base * ((lo - t_acc0[idx] + bias) * e1 + _e2(k, length)), n)
+        # asarray: older numpy stubs type weighted bincount as integer
+        prot = np.asarray(np.bincount(idx, base * e1, minlength=n), dtype=np.float64)
+        aod_w = rate * base * ((lo - t_acc0[idx] + bias) * e1 + _e2(k, length))
+        aod = np.asarray(np.bincount(idx, aod_w, minlength=n), dtype=np.float64)
     return [
         PeriodValues(float(c), float(a), float(lgd * pr)) for c, a, pr in zip(coupon, aod, prot)
     ]

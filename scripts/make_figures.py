@@ -20,7 +20,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import matplotlib
 
@@ -314,7 +314,8 @@ def fig_validation(ctx: Context, t: Theme) -> Figure:
     assert image is not None
     cb = fig.colorbar(image, ax=axes, shrink=0.85, pad=0.01)
     cb.set_label("|ours - QuantLib| value (bp of notional)", color=t.ink2)
-    cb.outline.set_visible(False)
+    # cast: older matplotlib stubs mistype Colorbar.outline
+    cast(Any, cb.outline).set_visible(False)
     cb.ax.tick_params(colors=t.muted, labelcolor=t.ink2)
     import QuantLib as ql
 
