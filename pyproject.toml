@@ -1,0 +1,66 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "credit-pricer"
+version = "0.1.0"
+description = "Credit derivatives pricing: CDS curves, single-name CDS, CDS indices, synthetic CDO tranches and credit-linked notes, validated against QuantLib."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "YoussefElb75" }]
+requires-python = ">=3.10"
+dependencies = ["numpy>=2.0", "scipy>=1.13"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Office/Business :: Financial",
+    "Typing :: Typed",
+]
+
+[project.optional-dependencies]
+validation = ["QuantLib>=1.34"]
+figures = ["matplotlib>=3.9"]
+dev = [
+    "QuantLib>=1.34",
+    "matplotlib>=3.9",
+    "pytest>=8",
+    "mypy>=1.10",
+    "ruff>=0.5",
+    "nbformat>=5.9",
+    "nbclient>=0.10",
+    "ipykernel>=6.29",
+]
+
+[project.urls]
+Repository = "https://github.com/YoussefElb75/credit-pricer"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/credit_pricer"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"data" = "credit_pricer/_data"  # synthetic data sets, so the loaders work after pip install
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.mypy]
+strict = true
+python_version = "3.10"
+files = ["src/credit_pricer", "tests", "scripts"]
+mypy_path = "src"
+explicit_package_bases = true
+
+[[tool.mypy.overrides]]
+module = ["QuantLib", "QuantLib.*", "scipy", "scipy.*", "matplotlib", "matplotlib.*", "nbformat", "nbclient"]
+ignore_missing_imports = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "NPY", "SIM"]
+ignore = ["B905"]  # zip() strictness is not useful for these fixed-length pairings
